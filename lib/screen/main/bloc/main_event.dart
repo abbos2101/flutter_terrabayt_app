@@ -5,16 +5,31 @@ abstract class MainEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LaunchEvent extends MainEvent {}
+class EventLaunch extends MainEvent {}
 
-class PostItemPressedEvent extends MainEvent {
+class EventPostItemPressed extends MainEvent {
   final int index;
 
-  PostItemPressedEvent({this.index});
+  EventPostItemPressed({this.index});
+
+  @override
+  List<Object> get props => [index];
 }
 
-class CategoryItemPressedEvent extends MainEvent {
+class EventCategoryItemPressed extends MainEvent {
   final int categoryId;
 
-  CategoryItemPressedEvent({this.categoryId});
+  EventCategoryItemPressed({this.categoryId});
+
+  @override
+  List<Object> get props => [categoryId];
+}
+
+class EventNextPage extends MainEvent {
+  final int firstUpdate;
+
+  EventNextPage({this.firstUpdate});
+
+  @override
+  List<Object> get props => [firstUpdate];
 }

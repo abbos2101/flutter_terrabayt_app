@@ -5,7 +5,15 @@ abstract class MainState extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadingState extends MainState {}
+class StateLoading extends MainState {
+  final List<CategoryModel> categoryList;
+  final List<PostModel> postList;
+
+  StateLoading({this.categoryList, this.postList});
+
+  @override
+  List<Object> get props => [categoryList, postList];
+}
 
 class FailState extends MainState {
   final String message;
@@ -16,11 +24,11 @@ class FailState extends MainState {
   List<Object> get props => [message];
 }
 
-class SuccessState extends MainState {
+class StateSuccess extends MainState {
   final List<CategoryModel> categoryList;
   final List<PostModel> postList;
 
-  SuccessState({this.categoryList, this.postList});
+  StateSuccess({this.categoryList, this.postList});
 
   @override
   List<Object> get props => [categoryList, postList];

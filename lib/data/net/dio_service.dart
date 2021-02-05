@@ -9,14 +9,24 @@ class DioService {
   final int _timeOut = DioBase.timeOut;
 
   Future<List<CategoryModel>> getCategoryList() async {
-    Response response = await _dio.request(
-      '${_baseUrl}api.php?action=categories',
-      options: Options(
-        method: 'GET',
-        receiveTimeout: _timeOut,
-        sendTimeout: _timeOut,
-      ),
-    );
+    Response response;
+    try {
+      response = await _dio.request(
+        '${_baseUrl}api.php?action=categories',
+        options: Options(
+          method: 'GET',
+          receiveTimeout: _timeOut,
+          sendTimeout: _timeOut,
+          validateStatus: (status) => true,
+          receiveDataWhenStatusError: false,
+        ),
+      );
+    } on DioError {
+      print('Salom');
+    } catch (e) {
+      print('Safdfdg');
+    }
+    if (response == null) throw Exception("Internet bilan bog'liq xatolik");
     if (response.statusCode != 200)
       throw Exception("Internet bilan bog'liq xatolik");
     if (response.data == null) throw Exception("Xatolik sodir bo'ldi");

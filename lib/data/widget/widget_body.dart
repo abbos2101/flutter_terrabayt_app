@@ -1,14 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_terrabayt_app/data/model/category_model.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_terrabayt_app/data/model/post_model.dart';
 
-mixin MainWidgetImp {
-  Widget widgetBodyList({
-    List<PostModel> postList,
-    void onPressedItem(int index),
-  }) {
+class WBodyList extends StatelessWidget {
+  final ScrollController controller;
+  final List<PostModel> postList;
+  final Function(int index) onPressedItem;
+
+  WBodyList({this.postList, this.controller, this.onPressedItem});
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
+      physics: BouncingScrollPhysics(),
+      controller: controller,
       itemCount: (postList ?? []).length,
       itemBuilder: (_, i) {
         final String title = postList[i].title;
@@ -24,8 +30,9 @@ mixin MainWidgetImp {
                 height: 258,
                 imageUrl: image,
                 fit: BoxFit.fill,
-                placeholder: (_, url) =>
-                    Center(child: CircularProgressIndicator()),
+                placeholder: (_, url) => Center(
+                  child: SpinKitFadingCircle(color: Colors.grey),
+                ),
                 errorWidget: (_, url, error) => Icon(Icons.error),
               ),
               MaterialButton(
@@ -57,8 +64,8 @@ mixin MainWidgetImp {
                       height: 120,
                       fit: BoxFit.fill,
                       imageUrl: image,
-                      placeholder: (_, url) =>
-                          Center(child: CircularProgressIndicator()),
+                      placeholder: (_, url) => Center(
+                          child: SpinKitFadingCircle(color: Colors.grey)),
                       errorWidget: (_, url, error) => Icon(Icons.error),
                     ),
                   ),
@@ -95,46 +102,6 @@ mixin MainWidgetImp {
           ),
         );
       },
-    );
-  }
-
-  Widget widgetDrawer({
-    List<CategoryModel> categoryList,
-    void onItemPressed(int categoryId),
-  }) {
-    return Container(
-      color: Colors.grey,
-      child: ListView.builder(
-        itemCount: categoryList.length + 1,
-        itemBuilder: (context, i) {
-          if (i == 0)
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: Image.asset('assets/tera_full_logo.png', height: 100),
-            );
-          if (i == 1) return Divider(height: 1, color: Colors.black38);
-          return Column(
-            children: [
-              MaterialButton(
-                minWidth: double.infinity,
-                height: 60,
-                onPressed: () => onItemPressed(categoryList[i - 2].id),
-                padding: EdgeInsets.all(0),
-                child: Container(
-                  margin: EdgeInsets.all(5),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '${categoryList[i - 2].name}',
-                    style: TextStyle(color: Colors.white),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-              ),
-              Divider(height: 1, color: Colors.black38),
-            ],
-          );
-        },
-      ),
     );
   }
 }

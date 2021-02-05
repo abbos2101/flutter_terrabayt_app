@@ -1,27 +1,100 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_terrabayt_app/data/model/post_model.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ContentScreen extends StatefulWidget {
-  static MaterialPageRoute route({String data, String title}) =>
-      MaterialPageRoute(builder: (_) => screen(data: data, title: title));
+  static MaterialPageRoute route({PostModel postModel}) =>
+      MaterialPageRoute(builder: (_) => screen(postModel: postModel));
 
-  static Widget screen({String data, String title}) =>
-      ContentScreen(data, title);
+  static Widget screen({PostModel postModel}) => ContentScreen(postModel);
 
-  final String data;
-  final String title;
+  final PostModel postModel;
 
-  const ContentScreen(this.data, this.title);
+  const ContentScreen(this.postModel);
 
   @override
   _ContentScreenState createState() => _ContentScreenState();
 }
 
 class _ContentScreenState extends State<ContentScreen> {
+  WebViewController controller;
+  double webViewHeight = 1;
+
+  String title = '';
+  String excerpt = '';
+  String categoryName = '';
+  String postModified = '';
+  String image = '';
+  String content = '';
+
+  @override
+  void initState() {
+    final PostModel postModel = widget.postModel;
+    title = postModel.title;
+    excerpt = postModel.excerpt;
+    categoryName = postModel.categoryName;
+    postModified = postModel.postModified;
+    image = postModel.image;
+    content = postModel.content;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.title}')),
-      body: SingleChildScrollView(child: Text('${widget.data}')),
+      appBar: AppBar(
+        title: Text('$categoryName'),
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 10),
+            alignment: Alignment.center,
+            child: Text('$postModified'),
+          )
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            CachedNetworkImage(imageUrl: image),
+            SizedBox(
+              height: webViewHeight,
+              child: WebView(
+                initialUrl: 'https://flutter.io',
+                javascriptMode: JavascriptMode.unrestricted,
+                onPageFinished: (url) => onPageFinished(),
+                onWebViewCreated: (controller) async {
+                  this.controller = controller;
+                  loadString();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  void loadString() async {
+    controller.loadUrl(Uri.dataFromString(
+      content.replaceAll("<span>{tap_to_load}</span>", "").replaceAll(
+          "<div class='imgbox'><img data-src=",
+          "<div class='imgbox'><img width=100% src="),
+      mimeType: 'text/html',
+      encoding: Encoding.getByName('utf-8'),
+    ).toString());
+  }
+
+  Future<void> onPageFinished() async {
+    try {
+      webViewHeight = double.parse(await controller
+          .evaluateJavascript("document.documentElement.scrollHeight;"));
+      setState(() {});
+    } catch (_) {}
   }
 }
